@@ -66,105 +66,105 @@ const InstagramData = async (instagramId) => {
 
 //InstagramData("mrbeast");
 
-//yt-api
-const YoutubeData = async (youtubeId) => {
-  const option = {
-    method: "GET",
-    url: config.YT_ENDPOINT,
-    params: {
-      forUsername: youtubeId,
-    },
-    headers: {
-      "x-rapidapi-key": config.X_RAPIDAPI_KEY,
-      "x-rapidapi-host": config.X_RAPIDAPI_HOST_YT,
-    },
-  };
+// //yt-api
+// const YoutubeData = async (youtubeId) => {
+//   const option = {
+//     method: "GET",
+//     url: config.YT_ENDPOINT,
+//     params: {
+//       forUsername: youtubeId,
+//     },
+//     headers: {
+//       "x-rapidapi-key": config.X_RAPIDAPI_KEY,
+//       "x-rapidapi-host": config.X_RAPIDAPI_HOST_YT,
+//     },
+//   };
 
-  try {
-    const response = await axios.request(option);
-    if(response.status !== 200) return {}
-    const _data = response.data?.meta;
-    const track = trackingData()
-    const store = {
-      channelId:_data?.channelId,
-      lastPost: [],
-      popularVideos: [],
-      popularVideo: {},
-      trackingData: track,
-    };
-    const popularVideosListing = response.data?.data?.find(
-      (listing) =>
-        listing.type === "video_listing" && listing.title === "Popular videos"
-    );
-    store.lastPost = response.data?.data[1];
-    store.popularVideos = popularVideosListing;
-    if (
-      popularVideosListing &&
-      popularVideosListing.data &&
-      popularVideosListing.data.length > 0
-    ) {
-      let maxViewCount = 0;
-      let mostPopularVideo = null;
+//   try {
+//     const response = await axios.request(option);
+//     if(response.status !== 200) return {}
+//     const _data = response.data?.meta;
+//     const track = trackingData()
+//     const store = {
+//       channelId:_data?.channelId,
+//       lastPost: [],
+//       popularVideos: [],
+//       popularVideo: {},
+//       trackingData: track,
+//     };
+//     const popularVideosListing = response.data?.data?.find(
+//       (listing) =>
+//         listing.type === "video_listing" && listing.title === "Popular videos"
+//     );
+//     store.lastPost = response.data?.data[1];
+//     store.popularVideos = popularVideosListing;
+//     if (
+//       popularVideosListing &&
+//       popularVideosListing.data &&
+//       popularVideosListing.data.length > 0
+//     ) {
+//       let maxViewCount = 0;
+//       let mostPopularVideo = null;
 
-      popularVideosListing.data.forEach((video) => {
-        const viewCount = parseInt(video.viewCount.replace(/,/g, ""), 10); // Remove commas and convert to integer
-        if (viewCount > maxViewCount) {
-          maxViewCount = viewCount;
-          mostPopularVideo = video;
-        }
-      });
+//       popularVideosListing.data.forEach((video) => {
+//         const viewCount = parseInt(video.viewCount.replace(/,/g, ""), 10); // Remove commas and convert to integer
+//         if (viewCount > maxViewCount) {
+//           maxViewCount = viewCount;
+//           mostPopularVideo = video;
+//         }
+//       });
 
-      if (mostPopularVideo) {
-        store.popularVideo = {
-          videoId: mostPopularVideo.videoId,
-          title: mostPopularVideo.title,
-          viewCount: mostPopularVideo.viewCount,
-        };
-      } else {
-        console.log('No videos found in the "Popular videos" listing.');
-      }
-    } else {
-      console.log('No "Popular videos" listing found.');
-    }
-    const final = await YoutubeStats(store)
-    return final
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-};
+//       if (mostPopularVideo) {
+//         store.popularVideo = {
+//           videoId: mostPopularVideo.videoId,
+//           title: mostPopularVideo.title,
+//           viewCount: mostPopularVideo.viewCount,
+//         };
+//       } else {
+//         console.log('No videos found in the "Popular videos" listing.');
+//       }
+//     } else {
+//       console.log('No "Popular videos" listing found.');
+//     }
+//     const final = await YoutubeStats(store)
+//     return final
+//   } catch (error) {
+//     console.log(error);
+//     return {};
+//   }
+// };
 
-//YoutubeData("@MrBeast")
+// //YoutubeData("@MrBeast")
 
-const YoutubeStats = async (store) =>{
-  const options = {
-    method: 'POST',
-    url: config.YT_STAT_ENDPOINT,
-    headers: {
-      'x-rapidapi-key': config.X_RAPIDAPI_KEY,
-      'x-rapidapi-host': config.X_RAPIDAPI_HOST_YT_STAT,
-      'Content-Type': 'application/json'
-    },
-    data: {
-      id: store.channelId,
-      part: [
-        'general',
-        'statistics',
-        'content'
-      ]
-    }
-  };
+// const YoutubeStats = async (store) =>{
+//   const options = {
+//     method: 'POST',
+//     url: config.YT_STAT_ENDPOINT,
+//     headers: {
+//       'x-rapidapi-key': config.X_RAPIDAPI_KEY,
+//       'x-rapidapi-host': config.X_RAPIDAPI_HOST_YT_STAT,
+//       'Content-Type': 'application/json'
+//     },
+//     data: {
+//       id: store.channelId,
+//       part: [
+//         'general',
+//         'statistics',
+//         'content'
+//       ]
+//     }
+//   };
   
-  try {
-    const response = await axios.request(options);
-    const data = response.data
-    const final = {...store, videoCount: data?.videoCount,viewCount: data?.viewCount,subscriberCount:data?.subscriberCount}
-    return final
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-}
+//   try {
+//     const response = await axios.request(options);
+//     const data = response.data
+//     const final = {...store, videoCount: data?.videoCount,viewCount: data?.viewCount,subscriberCount:data?.subscriberCount}
+//     return final
+//   } catch (error) {
+//     console.log(error);
+//     return {};
+//   }
+// }
 
 //facebook
 const facebookData = async (facebookUrl) => {
@@ -199,7 +199,7 @@ const facebookData = async (facebookUrl) => {
 
 //facebookData("https://www.facebook.com/MrBeast6000");
 
-module.exports = {facebookData,YoutubeData,InstagramData,trackingData}
+module.exports = {facebookData,InstagramData,trackingData}
 
 
 // Facebook
