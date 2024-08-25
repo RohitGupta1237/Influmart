@@ -8,7 +8,7 @@ import {
   Color,
   Padding,
 } from "../../GlobalStyles";
-import {formatNumber} from '../../helpers/GraphData';
+import { formatNumber } from '../../helpers/GraphData';
 import { useNavigation } from "@react-navigation/core";
 import ImageWithFallback from "../../util/ImageWithFallback";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -48,52 +48,50 @@ const InfluencerCard = ({
     }
   }
   return (
-    <View style={styles.cardContainer}>
-      <View style={styles.cardContent}>
-        <TouchableOpacity onPress={() => handleClick()}>
-          <View style={styles.imageContainer}>
-            <ImageWithFallback image={depth5Frame0} imageStyle={styles.image} isSelectedImage={isSelectedImage} />
-            <View style={styles.overlayContainer}>
-              <LinearGradient style={styles.overlay} colors={['transparent', '#000']}>
-                <Text style={styles.insightText}>INSIGHT</Text>
-                <Text style={styles.google}>{kylieCosmetics}</Text>
-                <Text style={styles.insightText}>{beauty}</Text>
-                <Text style={[styles.insightText,{color:Color.colorGainsboro_300,marginVertical:4}]}>@{userName}</Text>
-              </LinearGradient>
+    <View>
+      <TouchableOpacity onPress={() => { handleClick }}>
+        <View style={styles.depth2FrameLayout}>
+          <View style={styles.profileTop}>
+            <Text style={styles.userNameText}>@ {userName}</Text>
+            <Text style={styles.insightText}>{beauty}</Text>
+          </View>
+          <Text style={styles.google}>{kylieCosmetics}</Text>
+          <ImageWithFallback image={depth5Frame0} imageStyle={styles.image} isSelectedImage={isSelectedImage} />
+          <View style={styles.profileBottomContainer}>
+            <View style={styles.profileBottomChip}>
+              <Image style={{ width: 16, height: 16 }} source={require('../../assets/instagram-logo.png')} />
+              <Text style={styles.collaborationCount}>{formatNumber(statistics.instaData)}</Text>
             </View>
-            <View style={styles.statisticsContainer}>
-              <View style={styles.statistics}>
-                <Image style={{ width: 24, height: 24 }} source={require('../../assets/instagram_symbol.png')} />
-                <Text style={styles.categoryText}>{formatNumber(statistics.instaData)}</Text>
-              </View>
-              <View style={styles.statistics}>
-                <Image style={{ width: 24, height: 24 }} source={require('../../assets/tt_symbol.png')} />
-                <Text style={styles.categoryText}>{formatNumber(statistics.fbData)}</Text>
-              </View>
-              <View style={styles.statistics}>
-                <Image style={{ width: 24, height: 24 }} source={require('../../assets/yt_symbol.png')} />
-                <Text style={styles.categoryText}>{formatNumber(statistics.ytData)}</Text>
-              </View>
+            <View style={styles.profileBottomChip}>
+              <Image style={{ width: 16, height: 16 }} source={require('../../assets/tiktok-logo.png')} />
+              <Text style={styles.collaborationCount}>{formatNumber(statistics.fbData)}</Text>
+            </View>
+            <View style={styles.profileBottomChip}>
+              <Image style={{ width: 16, height: 16 }} source={require('../../assets/youtube-logo.png')} />
+              <Text style={styles.collaborationCount}>{formatNumber(statistics.ytData)}</Text>
             </View>
           </View>
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
+      <View style={styles.divider}></View>
     </View>
+
   );
 };
 
 const styles = StyleSheet.create({
   cardContainer: {
-    height: 420,
+    height: "auto",
     width: 280,
-    backgroundColor: Color.colorBlack,
-    borderRadius: Border.br_xs,
-    margin: Padding.p_base
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: Color.colorWhite,
+    paddingTop: 16
   },
   cardContent: {
     height: "100%",
-    width: "100%",
-    borderRadius: Border.br_xs,
+    width: "100%"
   },
   imageContainer: {
     height: 420,
@@ -156,19 +154,19 @@ const styles = StyleSheet.create({
     gap: 3
   },
   insightText: {
-    width: "100%",
     fontSize: FontSize.size_xs,
     fontFamily: FontFamily.plusJakartaSansBold,
-    color: Color.colorSlategray_100,
+    color: Color.colorSlategray_300,
   },
   google: {
-    fontSize: FontSize.size_lg,
+    fontSize: FontSize.size_base,
     lineHeight: 24,
-    fontFamily: FontFamily.interMedium,
+    fontFamily: FontFamily.interBold,
     fontWeight: "500",
     textAlign: "left",
-    color: Color.colorWhite,
+    color: Color.colorBlack,
     alignSelf: "stretch",
+    marginVertical: Padding.p_xs
   },
   categoryText: {
     fontSize: FontSize.size_smi,
@@ -177,21 +175,73 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: Color.colorSlategray_100,
   },
-  statisticsContainer:{
-    width:"100%",
-    height:"auto",
-    paddingHorizontal:Padding.p_base,
-    paddingVertical:Padding.p_xs,
-    display:"flex",
-    flexDirection:"row",
-    justifyContent:"space-evenly"
+  statisticsContainer: {
+    width: "100%",
+    height: "auto",
+    paddingHorizontal: Padding.p_base,
+    paddingVertical: Padding.p_xs,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-evenly"
   },
-  statistics:{
-    width:80,
-    display:"flex",
-    flexDirection:"column",
-    alignItems:"center",
-    gap:4
+  statistics: {
+    width: 80,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4
+  },
+  depth2FrameLayout: {
+    height: "auto",
+    width: 280,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    backgroundColor: Color.colorWhite,
+    paddingTop: 16
+  },
+  profileTop: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  userNameText: {
+    fontSize: FontSize.size_sm,
+    fontFamily: FontFamily.plusJakartaSansBold,
+    color: Color.colorBlack,
+  },
+  profileBottomContainer: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent:"space-between",
+    marginTop: Padding.p_xs
+  },
+  profileBottomChip: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    paddingHorizontal: Padding.p_xs,
+    paddingVertical: 6,
+    borderRadius: Border.br_base
+  },
+  collabrationText: {
+    fontFamily: FontFamily.plusJakartaSansBold,
+    fontSize: FontSize.size_xs
+  },
+  collaborationCount: {
+    fontFamily: FontFamily.plusJakartaSansBold,
+    fontSize:FontSize.size_xs
+  },
+  divider: {
+    width: "100%",
+    borderWidth: 0.5,
+    borderColor: "#ccc",
+    marginTop: 30
   }
 });
 

@@ -7,7 +7,6 @@ import { getAllBrandProfiles } from '../controller/brandController'
 import { useAlert } from '../util/AlertContext'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageWithFallback from "../util/ImageWithFallback";
-import { LinearGradient } from 'expo-linear-gradient'
 import { formatNumber } from "../helpers/GraphData";
 import Loader from '../shared/Loader'
 
@@ -65,7 +64,7 @@ const BrandAssosciated = ({ active }) => {
                 <Image
                   style={styles.depth4Frame0}
                   contentFit="cover"
-                  source={require("../assets/back_arrow_light.png")}
+                  source={require("../assets/depth-4-frame-010.png")}
                 />
               </TouchableOpacity>
               {
@@ -86,7 +85,7 @@ const BrandAssosciated = ({ active }) => {
               }
               <View style={styles.depth3Frame2}>
                 <TouchableOpacity onPress={handleSearch}>
-                  <Image style={{ width: 24, height: 24 }} source={require('../assets/search_light.png')} />
+                  <Image style={{ width: 24, height: 24 }} source={require('../assets/depth-5-frame-0.png')} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -97,22 +96,25 @@ const BrandAssosciated = ({ active }) => {
             {filteredBrands.length > 0 ?
               filteredBrands.map((brand, index) => {
                 return (
-                  <TouchableOpacity key={index} onPress={() => { console.log(brand?.profileUrl) }}>
-                    <View style={styles.depth2FrameLayout} >
-                      <ImageWithFallback imageStyle={styles.depth4Frame03} image={brand?.profileUrl} isSelectedImage={brand?.isSelectedImage} />
-                      <View style={styles.overlayContainer}>
-                        <LinearGradient style={styles.overlay} colors={['transparent', '#000']}>
-                          <Text style={styles.insightText}>INSIGHT</Text>
-                          <Text style={styles.google}>{brand?.brandName}</Text>
-                          <Text style={styles.insightText}>category: {brand?.category}</Text>
-                        </LinearGradient>
+                  <View>
+                    <TouchableOpacity key={index} onPress={() => { console.log(brand?.profileUrl) }}>
+                      <View style={styles.depth2FrameLayout}>
+                        <View style={styles.profileTop}>
+                          <Text style={styles.userNameText}>@ {brand?.name}</Text>
+                          <Text style={styles.insightText}>{brand?.category}</Text>
+                        </View>
+                        <Text style={styles.google}>{brand?.brandName}</Text>
+                        <ImageWithFallback imageStyle={styles.depth4Frame03} image={brand?.profileUrl} isSelectedImage={brand?.isSelectedImage} />
+                        <View style={styles.profileBottomContainer}>
+                          <View style={styles.profileBottomChip}>
+                            <Text style={styles.collabrationText}>Collaborations</Text>
+                            <Text style={styles.collaborationCount}>{brand?.collaborationCount ? formatNumber(brand?.collaborationCount) : "N/A"}</Text>
+                          </View>
+                        </View>
                       </View>
-                      <View style={styles.userNameText}>
-                        <Text style={styles.userNameText}>{`@${brand?.name}`}</Text>
-                        <Text style={styles.userNameText}>Collaborations: {brand?.collaborationCount ? formatNumber(brand?.collaborationCount) : "N/A"}</Text>
-                      </View>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                    <View style={styles.divider}></View>
+                  </View>
                 )
               })
               :
@@ -130,24 +132,24 @@ const BrandAssosciated = ({ active }) => {
 
 const styles = StyleSheet.create({
   frameBg: {
-    backgroundColor: Color.colorBlack,
+    backgroundColor: Color.colorWhite,
     width: "100%",
     height: "100%"
   },
   depth1FrameSpaceBlock: {
     paddingHorizontal: Padding.p_base,
     width: "100%",
-    backgroundColor: Color.colorBlack,
+    backgroundColor: Color.colorWhite,
     height: "auto"
   },
   depth2FrameLayout: {
-    height: 450,
+    height: "auto",
     width: 280,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    borderRadius: Border.br_base,
-    backgroundColor: "#0C0B0B"
+    backgroundColor: Color.colorWhite,
+    paddingTop: 16
   },
   frameLayout: {
     height: 173,
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.interBold,
     textAlign: "left",
     letterSpacing: 0,
-    color: Color.colorWhite,
+    color: Color.colorBlack,
   },
   depth5Frame0: {
     alignSelf: "stretch",
@@ -263,11 +265,12 @@ const styles = StyleSheet.create({
   google: {
     fontSize: FontSize.size_base,
     lineHeight: 24,
-    fontFamily: FontFamily.interMedium,
+    fontFamily: FontFamily.interBold,
     fontWeight: "500",
     textAlign: "left",
-    color: Color.colorWhite,
+    color: Color.colorBlack,
     alignSelf: "stretch",
+    marginVertical: Padding.p_xs
   },
   depth4Frame04: {
     width: 173,
@@ -309,10 +312,9 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 20,
+    gap: 48,
     justifyContent: "center",
-    paddingHorizontal: "2%",
-    marginBottom:60
+    marginBottom: 60
   },
   depth4Frame019: {
     paddingHorizontal: 0,
@@ -392,12 +394,12 @@ const styles = StyleSheet.create({
     height: "100%"
   },
   SearchBar: {
-    width: "75%",
+    width: "80%",
     paddingVertical: Padding.p_smi,
     paddingHorizontal: Padding.p_base,
     fontSize: FontSize.size_base,
-    color: "#ccc",
-    backgroundColor: "#333333",
+    color: Color.colorBlack,
+    backgroundColor: Color.colorWhitesmoke_300,
     outlineStyle: "none",
     borderRadius: Border.br_xs,
   },
@@ -417,19 +419,52 @@ const styles = StyleSheet.create({
     gap: 3
   },
   insightText: {
-    width: "100%",
     fontSize: FontSize.size_xs,
     fontFamily: FontFamily.plusJakartaSansBold,
-    color: Color.colorSlategray_100,
+    color: Color.colorSlategray_300,
   },
   userNameText: {
-    width: "100%",
-    fontSize: FontSize.size_base,
+    fontSize: FontSize.size_sm,
     fontFamily: FontFamily.plusJakartaSansBold,
-    color: Color.colorSlategray_100,
-    marginTop: 15,
-    marginLeft: 10
+    color: Color.colorBlack,
   },
+  profileTop: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  profileBottomContainer: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    gap: 20,
+    marginTop: Padding.p_xs
+  },
+  profileBottomChip: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    paddingHorizontal: Padding.p_xs,
+    paddingVertical: 5,
+    borderRadius: Border.br_base
+  },
+  collabrationText: {
+    fontFamily: FontFamily.plusJakartaSansBold,
+    fontSize: FontSize.size_xs
+  },
+  collaborationCount: {
+    fontFamily: FontFamily.plusJakartaSansBold,
+  },
+  divider:{
+    width:"100%",
+    borderWidth:0.5,
+    borderColor:"#ccc",
+    marginTop:30
+  }
 });
 
 export default BrandAssosciated;

@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    backgroundColor: Color.colorBlack,
+    backgroundColor: Color.colorWhite,
   },
   menuBar: {
     position: "static",
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
+    gap:48
   },
   trendingContainer: {
     paddingHorizontal: Padding.p_base,
