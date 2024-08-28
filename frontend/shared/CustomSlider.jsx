@@ -4,7 +4,7 @@ import { Border, Padding } from "../GlobalStyles";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 
 export default function CustomSlider({minValue,maxValue,selectedValues}) {
-    const [value, setValue] = useState({ values: [minValue, maxValue], })
+    const [value, setValue] = useState({ values: [0, 0], })
     const [width, setWidth] = useState(0)
     const multiSliderValuesChange = (values) => {
         setValue({
@@ -12,6 +12,9 @@ export default function CustomSlider({minValue,maxValue,selectedValues}) {
         });
         selectedValues({min:value.values[0],max:value.values[1]})
     }
+    useEffect(()=>{
+        setValue({values:[minValue,maxValue]})
+    },[minValue,maxValue])
     return (
         <View style={styles.sliderContainer} onLayout={(evt) => {
             setWidth(evt.nativeEvent.layout.width)
@@ -19,11 +22,11 @@ export default function CustomSlider({minValue,maxValue,selectedValues}) {
             <MultiSlider
                 values={[value.values[0], value.values[1]]}
                 sliderLength={width}
-                selectedStyle={{ backgroundColor: '#000', }}
+                selectedStyle={{ backgroundColor: '#000',height:3 }}
                 containerStyle={styles.containerStyle}
                 onValuesChange={multiSliderValuesChange}
                 unselectedStyle={{ backgroundColor: "#DBE0E5" }}
-                markerStyle={{ backgroundColor: "#000",height:10,width:10,position:"absolute",top:-2,left:-1, shadowOpacity: 0, borderWidth: 0 }}
+                markerStyle={{ backgroundColor: "#000",height:20,width:20,position:"absolute",top:-8,left:-1, shadowOpacity: 0, borderWidth: 0,padding:0 }}
                 min={minValue}
                 max={maxValue}
                 step={1}
@@ -41,7 +44,7 @@ const styles = StyleSheet.create({
     sliderContainer: {
         width: "100%",
         height: 200,
-        paddingVertical: 8
+        paddingVertical: 32
     },
     containerStyle: {
         alignSelf: "center",

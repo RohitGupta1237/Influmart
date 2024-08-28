@@ -49,7 +49,7 @@ const InfluencerCard = ({
   }
   return (
     <View>
-      <TouchableOpacity onPress={() => { handleClick }}>
+      <TouchableOpacity onPress={() => { handleClick() }}>
         <View style={styles.depth2FrameLayout}>
           <View style={styles.profileTop}>
             <Text style={styles.userNameText}>@ {userName}</Text>
