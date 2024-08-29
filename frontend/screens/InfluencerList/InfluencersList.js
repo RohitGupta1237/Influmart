@@ -1,11 +1,8 @@
 import * as React from "react";
 import { Image } from "expo-image";
-import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Pressable, TouchableOpacity } from "react-native";
 import Depth1Frame11 from "../../components/Depth1Frame11";
-import Depth1Frame10 from "../../components/Depth1Frame10";
-import Depth1Frame from "../../components/Depth1Frame";
-import DropDown from "../../shared/DropDown";
-import { useNavigation } from '@react-navigation/native';
+import Filter from "./Filter";
 import { Color, Padding, Border, FontFamily, FontSize } from "../../GlobalStyles";
 import InfluencerCard from "./IncluencerCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,7 +15,7 @@ const BrandIcon = require("../../assets/depth-3-frame-01.png");
 const BothIcon = require("../../assets/depth-3-frame-02.png");
 const AllIcon = require("../../assets/depth-3-frame-03.png");
 
-const InfluencersList = ({route,navigation}) => {
+const InfluencersList = ({ route, navigation }) => {
   const newData = route.params?.newData
   const [searchValue, setSearchValue] = React.useState("");
   const [showFloatButton, setShowFloatButton] = React.useState(true);
@@ -26,7 +23,15 @@ const InfluencersList = ({route,navigation}) => {
   const [brandId, setBrandId] = React.useState("");
   const [influencerData, setInfluencerData] = React.useState(null);
   const { showAlert } = useAlert()
-  const[loading,setLoading]=React.useState(false)
+  const [loading, setLoading] = React.useState(false)
+  const [selectedFilter, setSeletedFilter] = React.useState("")
+  React.useEffect(() => {
+    if (selectedFilter == "Reset") {
+      setLoading(true)
+      GetAllInfluencerProfile(setInfluencerData)
+      setLoading(false)
+    }
+  }, [selectedFilter])
   React.useEffect(() => {
     const getBrandId = async () => {
       const brandId = await AsyncStorage.getItem("brandId");
@@ -35,21 +40,17 @@ const InfluencersList = ({route,navigation}) => {
     getBrandId(setInfluencerData, showAlert);
   }, [])
   React.useEffect(() => {
-    if(!newData){
-    setLoading(true)
-    GetAllInfluencerProfile(setInfluencerData)
-    setLoading(false)
-    }else{
+    if (!newData) {
+      setLoading(true)
+      GetAllInfluencerProfile(setInfluencerData)
+      setLoading(false)
+    } else {
       setInfluencerData(newData)
     }
-  }, [brandId,route.params])
-  const FakeData = [
-    { key: "one", value: "One" },
-    { key: "two", value: "Two" },
-    { key: "three", value: "Three" },
-    { key: "four", value: "Four" },
-  ];
-
+  }, [brandId, route.params])
+  const filterOptions = [
+    "Platform", "Price", "Engagement Rate", "Age", "Followers Count", "Post Count", "Views Count", "Location", "Gender", "Tags", "Category", "Cities"
+  ]
   function handleScroll(event) {
     const currentOffset = event.nativeEvent.contentOffset.y;
     const direction = currentOffset > scrollOffset ? 'down' : 'up';
@@ -61,33 +62,62 @@ const InfluencersList = ({route,navigation}) => {
   }
   const filteredData = influencerData
     ? influencerData.filter((item) =>
-        item.influencerName.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.userName.toLowerCase().includes(searchValue.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchValue.toLowerCase())
-      )
+      item.influencerName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.userName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchValue.toLowerCase())
+    )
     : [];
   return (
-    <View style={styles.container}>
-      {loading&&<Loader loading={loading}/>}
-      <Depth1Frame11 style={styles.menuBar} onChange={setSearchValue} />
-      <View style={styles.scrollContainer}>
-        <ScrollView onScroll={handleScroll} scrollEventThrottle={16} style={styles.scrollView}>
-          <View style={styles.cardContainer}>
-          {filteredData && filteredData.map((item, index) => <InfluencerCard key={index} userName={item?.userName} influencerId={item?._id} depth5Frame0={item?.profileUrl} isSelectedImage={item?.isSelectedImage} kylieCosmetics={item?.influencerName} beauty={item?.category} statistics={{ytData:item?.ytData[0]?.subscriberCount||"N/A",instaData:item?.instaData[0]?.followers||"N/A",fbData:item?.fbData[0]?.followers||"N/A"}}/>)}
-          </View>
-        </ScrollView>
-      </View>
-      <View style={[styles.floatButtonContainer, { opacity: showFloatButton ? 1 : 0.4 }]}>
-        <Pressable onPress={() => navigation.navigate("FilterUI")} style={styles.floatButton}>
-          <View style={styles.floatButtonContent}>
-            <Image style={styles.floatButtonImage} contentFit="cover" source={require("../../assets/depth-4-frame-015.png")} />
-            <View style={styles.floatButtonTextContainer}>
-              <Text style={styles.floatButtonText}>Filters</Text>
+    <>
+      <View style={styles.container}>
+        {loading && <Loader loading={loading} />}
+        <Depth1Frame11 style={styles.menuBar} onChange={setSearchValue} />
+        <View style={styles.scrollContainer}>
+          <ScrollView onScroll={handleScroll} scrollEventThrottle={16} style={styles.scrollView}>
+            <View style={{ width: "100%", height: "auto", display: "flex", flexDirection: "row", alignItems: "center", padding: Padding.p_base }}>
+              <Image style={styles.filterIcon} contentFit="cover" source={require("../../assets/filter-icon.png")} />
+              <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={{ paddingRight: 10 }} style={{ width: "auto", paddingVertical: 8, height: "auto" }}>
+                {
+                  filterOptions?.map((filterValue, key) => {
+                    return (
+                      <TouchableOpacity style={styles.filterContainer} key={key} onPress={() => {
+                        setSeletedFilter(filterValue)
+                      }}>
+                        <Text style={styles.filterText}>{filterValue}</Text>
+                      </TouchableOpacity>
+                    )
+                  })
+                }
+                <TouchableOpacity style={[styles.filterContainer, { backgroundColor: "red" }]} onPress={() => { setSeletedFilter("Reset") }}>
+                  <Text style={[styles.filterText, { color: "#fff" }]}>Reset</Text>
+                </TouchableOpacity>
+              </ScrollView>
             </View>
-          </View>
-        </Pressable>
+            <View style={styles.cardContainer}>
+              {
+                filteredData?.length == 0 ?
+                  <View>
+                    <Text>No influencers found</Text>
+                  </View>
+                  :
+                  filteredData && filteredData.map((item, index) => <InfluencerCard key={index} userName={item?.userName} influencerId={item?._id} depth5Frame0={item?.profileUrl} isSelectedImage={item?.isSelectedImage} kylieCosmetics={item?.influencerName} beauty={item?.category} statistics={{ ytData: item?.ytData[0]?.subscriberCount || "N/A", instaData: item?.instaData[0]?.followers || "N/A", fbData: item?.fbData[0]?.followers || "N/A" }} />)
+              }
+            </View>
+          </ScrollView>
+        </View>
+        {/* <View style={[styles.floatButtonContainer, { opacity: showFloatButton ? 1 : 0.4 }]}>
+          <Pressable onPress={() => navigation.navigate("FilterUI")} style={styles.floatButton}>
+            <View style={styles.floatButtonContent}>
+              <Image style={styles.floatButtonImage} contentFit="cover" source={require("../../assets/depth-4-frame-015.png")} />
+              <View style={styles.floatButtonTextContainer}>
+                <Text style={styles.floatButtonText}>Filters</Text>
+              </View>
+            </View>
+          </Pressable>
+        </View> */}
       </View>
-    </View>
+      <Filter selectedFilter={selectedFilter} setLoading={setLoading} />
+    </>
   );
 };
 
@@ -95,7 +125,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: "100%",
-    backgroundColor: Color.colorBlack,
+    backgroundColor: Color.colorWhite,
   },
   menuBar: {
     position: "static",
@@ -109,8 +139,8 @@ const styles = StyleSheet.create({
   scrollView: {
     width: "100%",
     height: "100%",
-    flex:1,
-    marginBottom:120
+    flex: 1,
+    marginBottom: 90
   },
   horizontalScroll: {
     height: "auto",
@@ -130,6 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
+    gap: 48
   },
   trendingContainer: {
     paddingHorizontal: Padding.p_base,
@@ -198,6 +229,23 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: FontSize.size_base,
     width: "auto",
+  },
+  filterText: {
+    fontFamily: FontFamily.beVietnamProRegular,
+    height: "auto",
+  },
+  filterContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingVertical: 8,
+    paddingHorizontal: 28,
+    borderRadius: Border.br_xl,
+    marginHorizontal: 4
+  },
+  filterIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 4
   },
 });
 
