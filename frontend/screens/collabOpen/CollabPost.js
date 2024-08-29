@@ -17,8 +17,12 @@ import ImageWithFallback from "../../util/ImageWithFallback";
 
 const CollabPost = ({ navigation }) => {
   const [selectedFooterItem, setSelectedFooterItem] = useState("My Network");
-  const [data, setData] = useState([]);
+  const [data, setData] = useState([]); // Original data fetched from API
+  const [filteredData, setFilteredData] = useState([]); // Data after applying search and category filters
+  const [searchText, setSearchText] = useState(""); // State for search input
+  const [selectedCategory, setSelectedCategory] = useState(""); // State for selected category
   const { showAlert } = useAlert();
+
   useEffect(() => {
     const getData = async () => {
       await getAllCollabPosts(setData, showAlert);
@@ -26,6 +30,34 @@ const CollabPost = ({ navigation }) => {
 
     getData();
   }, []);
+
+  useEffect(() => {
+    // Filter data based on search text and selected category
+    const applyFilters = () => {
+      let filtered = data;
+
+      // Apply category filter if a category is selected
+      if (selectedCategory) {
+        filtered = filtered.filter(post =>
+          post.campaignType?.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
+      }
+
+      // Apply search filter
+      if (searchText) {
+        filtered = filtered.filter(post =>
+          post.brandName?.toLowerCase().includes(searchText.toLowerCase()) ||
+          post.campaignType?.toLowerCase().includes(searchText.toLowerCase()) ||
+          post.postInfo?.toLowerCase().includes(searchText.toLowerCase())
+        );
+      }
+
+      setFilteredData(filtered);
+    };
+
+    applyFilters();
+  }, [searchText, selectedCategory, data]);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -37,7 +69,9 @@ const CollabPost = ({ navigation }) => {
           style={{ width: 28, height: 28 }}
         />
       </View>
+
       <ScrollView>
+        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <View style={styles.searchInputContainer}>
             <Icon
@@ -46,25 +80,39 @@ const CollabPost = ({ navigation }) => {
               color="#888"
               style={styles.searchIcon}
             />
-            <TextInput style={styles.searchInput} placeholder="Find" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Find"
+              value={searchText}
+              onChangeText={setSearchText} // Update search text on input change
+            />
           </View>
         </View>
 
+        {/* Categories */}
         <View style={styles.categories}>
           <Text style={styles.categoryTitle}>Categories</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {["Business", "Non-profit", "Art", "Technology"].map(
+            {["Grocery", "Electronics", "Fashion", "Toys", "Beauty", "Home Decoration", "Fitness", "Education", "Others"].map(
               (category, index) => (
-                <View key={index} style={styles.categoryTag}>
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.categoryTag,
+                    selectedCategory === category && { backgroundColor: "#ddd" } // Highlight selected category
+                  ]}
+                  onPress={() => setSelectedCategory(category)} // Update selected category on press
+                >
                   <Text>{category}</Text>
-                </View>
+                </Pressable>
               )
             )}
           </ScrollView>
         </View>
 
+        {/* Posts */}
         <View style={styles.posts}>
-          {data?.map((post, index) => (
+          {(filteredData.length > 0 ? filteredData : data)?.map((post, index) => (
             <Pressable
               key={index}
               onPress={() => {
