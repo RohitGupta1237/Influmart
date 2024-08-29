@@ -124,29 +124,7 @@ const App = () => {
       console.error("Error checking token:", error);
     }
   };
-  React.useEffect(() => {
-    const handleDeepLink = (event) => {
-      const url = event.url;
-      const route = url.replace(/.*?:\/\//g, '');
-      const [path, token] = route.split('/');
-
-      if (path === 'reset-password' && token) {
-        navigation.navigate('ResetPasswordScreen', { token });
-      }
-    };
-
-    // Listen for deep links
-    Linking.addEventListener('url', handleDeepLink);
-
-    // Handle deep links that caused the app to open
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
-
-    return () => {
-      Linking.removeEventListener('url', handleDeepLink);
-    };
-  }, []);
+  
 
 
   if (!fontsLoaded && !error) {
