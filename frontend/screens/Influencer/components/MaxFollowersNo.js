@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -32,6 +32,7 @@ const socialAccounts = [
 const MaxFollowersNo = ({ route, navigation }) => {
   const [value, setValue] = React.useState("");
   const [platform, setPlatform] = React.useState("");
+  const [disableButton,setDisableButton] = useState(true)
   const price = route.params?.price;
   const social = route.params?.social;
   const photo = route.params?.photo
@@ -44,6 +45,13 @@ const MaxFollowersNo = ({ route, navigation }) => {
       setValue(value.toString());
     }
   }, [route.params]);
+  useEffect(()=>{
+    if(platform!="" && value!=""){
+      setDisableButton(false)
+    }else{
+      setDisableButton(true)
+    }
+  },[value,platform])
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -99,7 +107,8 @@ const MaxFollowersNo = ({ route, navigation }) => {
         />
       </View>
       <TouchableOpacity
-        style={styles.confirmButton}
+        disabled={disableButton}
+        style={disableButton?styles.ButtonDisabled:styles.confirmButton}
         onPress={() =>
           navigation.navigate(redirect, {
             follower: { platform: platform, value: value },
@@ -110,7 +119,7 @@ const MaxFollowersNo = ({ route, navigation }) => {
           })
         }
       >
-        <Text style={styles.confirmButtonText}>Confirm</Text>
+        <Text style={disableButton?styles.ButtonDisabledText: styles.confirmButtonText}>Confirm</Text>
       </TouchableOpacity>
     </ScrollView>
   );

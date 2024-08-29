@@ -32,6 +32,14 @@ const FormField = ({
   isVerified,
   handleVerify,
 }) => {
+  const [disableButton,setDisableButton] = useState(true)
+  useEffect(()=>{
+    if(value){
+      setDisableButton(false)
+    }else{
+      setDisableButton(true)
+    }
+  },[value])
   return (
     <View style={styles.formField}>
       <View style={styles.fieldContainer}>
@@ -46,9 +54,9 @@ const FormField = ({
       </View>
       <View style={styles.verifyContainer}>
         <TouchableOpacity
-          style={[styles.verifyButton, isVerified && styles.verifiedButton]}
+          style={[styles.verifyButton, disableButton || isVerified && styles.verifiedButton]}
           onPress={handleVerify}
-          disabled={isVerified}
+          disabled={ disableButton || isVerified}
         >
           <Image
             style={styles.verifyIcon}
@@ -105,8 +113,15 @@ const AddHandles = ({ route, navigation }) => {
   });
 
   const [fbRequest, fbResponse, promptFacebookAsync] = Facebook.useAuthRequest({
-    clientId: "1010737297365787",
-    scopes: ["public_profile", "email"],
+    clientId: "1563140204620923",
+    scopes: [
+      "public_profile",
+      "email",
+      "user_posts",
+      "user_link",
+      "user_likes",
+      "user_friends"
+    ],
   });
 
   const checkFacebookTokenAndFetchInstagram = async () => {
@@ -178,6 +193,8 @@ const AddHandles = ({ route, navigation }) => {
       const userInfo = await userInfoResponse.json();
       setUserInfo(userInfo);
       await AsyncStorage.setItem("fbAccessToken", accessToken);
+      console.log(userInfo);
+      await fetchFacebookUserData(accessToken);
       if (userInfo.email === email) {
         if (facebook) {
           setVerifiedAccounts((prev) => [...prev, "facebook"]);
@@ -192,31 +209,105 @@ const AddHandles = ({ route, navigation }) => {
     }
   };
 
-  const handleInstagramEffect = async (accessToken) => {
+  async function fetchFacebookUserData(token) {
     try {
-      const response = await fetch(
-        `https://graph.instagram.com/me?fields=id,username&access_token=${accessToken}`
+      // Fetch user profile information
+      const profileResponse = await fetch(
+        `https://graph.facebook.com/me?fields=id,name,email,link&access_token=${token}`
       );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const userInfo = await response.json();
-      setInstagramInfo({
-        username: userInfo.username,
-        email: email,
-      });
-
-      if (userInfo.username === instagram) {
-        setVerifiedAccounts((prev) => [...prev, "instagram"]);
-      } else {
-        showAlert("Error", "Data mismatch. Please provide instagram username");
-      }
+      const profileData = await profileResponse.json();
+  
+      // Fetch user's likes
+      const likesResponse = await fetch(
+        `https://graph.facebook.com/me/likes?access_token=${token}`
+      );
+      const likesData = await likesResponse.json();
+  
+      // Fetch user's posts
+      const postsResponse = await fetch(
+        `https://graph.facebook.com/me/posts?access_token=${token}`
+      );
+      const postsData = await postsResponse.json();
+  
+      // Fetch recent highlights and engagement rates
+      const insightsData = await fetchFacebookInsights(token);
+  
+      // Compile all the data together
+      const userData = {
+        profile: profileData,
+        likes: likesData.data.length,
+        posts: postsData.data.length,
+        insights: insightsData,
+      };
+  
+      console.log("User Data:", userData);
+      return userData;
     } catch (error) {
-      console.error("Error in handleInstagramEffect:", error);
+      console.error("Error fetching Facebook user data:", error);
     }
-  };
+  }
+  
+  async function fetchFacebookInsights(accessToken) {
+    const apiVersion = "v16.0"; // Use the latest Facebook API version
+    const fields =
+      "insights.metric(post_impressions,post_engaged_users,post_reactions,post_shares,post_comments).period(month)";
+    const endpoint = `https://graph.facebook.com/${apiVersion}/me/accounts?fields=${fields}&access_token=${accessToken}`;
+  
+    try {
+      const response = await fetch(endpoint);
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error.message);
+      }
+  
+      let totalImpressions = 0;
+      let totalEngagedUsers = 0;
+      let totalReactions = 0;
+      let totalShares = 0;
+      let totalComments = 0;
+  
+      const insights = data.data.map((page) => {
+        const impressions = page.insights.data.find(metric => metric.name === 'post_impressions')?.values.slice(0, 2).reduce((acc, val) => acc + val.value, 0) || 0;
+        const engagedUsers = page.insights.data.find(metric => metric.name === 'post_engaged_users')?.values.slice(0, 2).reduce((acc, val) => acc + val.value, 0) || 0;
+        const reactions = page.insights.data.find(metric => metric.name === 'post_reactions')?.values.slice(0, 2).reduce((acc, val) => acc + val.value, 0) || 0;
+        const shares = page.insights.data.find(metric => metric.name === 'post_shares')?.values.slice(0, 2).reduce((acc, val) => acc + val.value, 0) || 0;
+        const comments = page.insights.data.find(metric => metric.name === 'post_comments')?.values.slice(0, 2).reduce((acc, val) => acc + val.value, 0) || 0;
+  
+        totalImpressions += impressions;
+        totalEngagedUsers += engagedUsers;
+        totalReactions += reactions;
+        totalShares += shares;
+        totalComments += comments;
+  
+        return {
+          pageId: page.id,
+          pageName: page.name,
+          impressions,
+          engagedUsers,
+          reactions,
+          shares,
+          comments,
+          engagementRate: (engagedUsers / impressions) * 100,
+        };
+      });
+  
+      const highlights = {
+        totalImpressions,
+        totalEngagedUsers,
+        totalReactions,
+        totalShares,
+        totalComments,
+        engagementRate: (totalEngagedUsers / totalImpressions) * 100,
+      };
+  
+      console.log("Insights and Highlights:", { insights, highlights });
+      return { insights, highlights };
+    } catch (error) {
+      console.error("Error fetching Facebook insights:", error);
+      return null;
+    }
+  }
 
   const getUserInfo = async (token) => {
     if (!token) return;
@@ -238,7 +329,6 @@ const AddHandles = ({ route, navigation }) => {
 
   const fetchYouTubeData = async (token) => {
     if (!token) return;
-
     try {
       const response = await fetch(
         "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
@@ -262,7 +352,7 @@ const AddHandles = ({ route, navigation }) => {
           analytics: analytics,
           highlights: highlights,
           ytChannelId: data.items[0]?.id,
-          overAll: overAll
+          overAll: overAll,
         })
       );
       if (userYtData.email === email) {
@@ -317,7 +407,7 @@ const AddHandles = ({ route, navigation }) => {
           value={instagram}
           setValue={setInstagram}
           isVerified={verifiedAccounts.includes("instagram")}
-          handleVerify={() => checkFacebookTokenAndFetchInstagram()}
+          handleVerify={() => {}}
         />
         <FormField
           label="Twitter"

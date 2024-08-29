@@ -93,6 +93,17 @@ export const MaxFollowersNoStyles = {
     fontFamily: FontFamily.beVietnamProBold,
     color: Color.colorWhite,
   },
+  ButtonDisabled: {
+    backgroundColor: "#F0F2F5",
+    paddingVertical: Padding.p_base,
+    borderRadius: Border.br_xs,
+    alignItems: "center",
+  },
+  ButtonDisabledText: {
+    fontSize: FontSize.size_base,
+    fontFamily: FontFamily.beVietnamProBold,
+    color: "black",
+  },
   desc: {
     fontSize: FontSize.size_sm,
     marginTop: 5,
